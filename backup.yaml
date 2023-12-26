@@ -1,0 +1,31 @@
+---
+- name: Backup and Transfer Passwd, Shadow, and Group files
+  hosts: "name set in hosts file"
+  become: yes
+  tasks:
+    - name: Create backup directory
+      ansible.builtin.file:
+        path: /tmp/{{ inventory_hostname }}
+        state: directory
+      become: yes
+    - name: Backup /etc/passwd
+      ansible.builtin.copy:
+        src: /etc/passwd
+        dest: /tmp/{{ inventory_hostname }}/passwd_backup
+      become: yes
+    - name: Backup /etc/shadow
+      ansible.builtin.copy:
+        src: /etc/shadow
+        dest: /tmp/{{ inventory_hostname }}/shadow_backup
+      become: yes
+    - name: Backup /etc/group
+      ansible.builtin.copy:
+        src: /etc/group
+        dest: /tmp/{{ inventory_hostname }}/group_backup
+      become: yes
+    - name: Transfer backup files to the ansible controller
+      ansible.builtin.synchronize:
+        mode: pull
+        src: /tmp/{{ inventory_hostname }}/
+        dest: /tmp/{{ inventory_hostname }}/
+      become: yes
